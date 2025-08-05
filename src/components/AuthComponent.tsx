@@ -41,14 +41,6 @@ export const AuthComponent: React.FC<AuthComponentProps> = ({ onAuthSuccess }) =
             showLinks={true}
           />
         </div>
-        
-        <div className="text-center">
-          <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-            <p className="font-medium">Admin Access:</p>
-            <p>Email: banuweb3@gmail.com</p>
-            <p>Password: Banuweb@12345678</p>
-          </div>
-        </div>
       </div>
     </div>
   );
