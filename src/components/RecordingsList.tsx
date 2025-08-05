@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Play, ExternalLink, Loader, RefreshCw } from 'lucide-react';
-import { supabase, RecordingLog } from '../lib/supabase';
+import { supabase, RecordingLog, User, isAdmin } from '../lib/supabase';
 
-export const RecordingsList: React.FC = () => {
+interface RecordingsListProps {
+  user: User;
+}
+
+export const RecordingsList: React.FC<RecordingsListProps> = ({ user }) => {
   const [recordings, setRecordings] = useState<RecordingLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -12,10 +16,16 @@ export const RecordingsList: React.FC = () => {
     setError('');
     
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('recording_logs')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
+      
+      // If not admin, only show user's own recordings
+      if (!isAdmin(user)) {
+        query = query.eq('user_id', user.id);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false });
       
       if (error) throw error;
       
@@ -51,7 +61,10 @@ export const RecordingsList: React.FC = () => {
     <div className="bg-white rounded-lg border border-gray-200">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">All Recordings</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {isAdmin(user) ? 'All Recordings' : 'My Recordings'}
+            <span className="text-sm font-normal text-gray-500 ml-2">({recordings.length} total)</span>
+          </h2>
           <button
             onClick={fetchRecordings}
             className="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -68,7 +81,7 @@ export const RecordingsList: React.FC = () => {
       <div className="divide-y divide-gray-200">
         {recordings.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            No recordings found. Upload your first recording above!
+            {isAdmin(user) ? 'No recordings found in the system.' : 'No recordings found. Upload your first recording above!'}
           </div>
         ) : (
           recordings.map((recording) => (
@@ -79,13 +92,23 @@ export const RecordingsList: React.FC = () => {
                     <h3 className="font-medium text-gray-900">
                       {recording.candidate_name}
                     </h3>
-                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
                       {recording.question_label}
                     </span>
+                      {recording.question_position && (
+                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
+                          Q{recording.question_position}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="text-sm text-gray-500 mb-3">
                     {recording.created_at && formatDate(recording.created_at)}
+                    {isAdmin(user) && recording.user_id && (
+                      <span className="ml-2 text-purple-600">• User ID: {recording.user_id.slice(0, 8)}...</span>
+                    )}
                   </div>
                   
                   <div className="flex items-center gap-3">
