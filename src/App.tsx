@@ -133,6 +133,7 @@ function App() {
             
             <div className="flex items-center gap-4">
               <nav className="flex gap-2">
+                <>
                 <button
                   onClick={() => setCurrentView('record')}
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -155,6 +156,7 @@ function App() {
                   <List className="w-4 h-4" />
                   {isAdmin(user) ? 'All Recordings' : 'My Recordings'}
                 </button>
+                </>
               </nav>
               
               <UserProfile user={user} />

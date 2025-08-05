@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut, Shield, User } from 'lucide-react';
+import { LogOut, Shield, User as UserIcon } from 'lucide-react';
 import { supabase, User, isAdmin } from '../lib/supabase';
 
 interface UserProfileProps {
@@ -23,7 +23,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
           </div>
         ) : (
           <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-full">
-            <User className="w-3 h-3" />
+            <UserIcon className="w-3 h-3" />
             <span>User</span>
           </div>
         )}
